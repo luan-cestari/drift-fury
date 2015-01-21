@@ -1,6 +1,100 @@
 $(document).ready(function(){
 
 
+    // Get x, y point from a path segment or more, the resulting road will be an array with a polygonal circuit
+    function pathToPoints(segments) {
+        var count = segments.numberOfItems;
+        var result = [], segment, x, y;
+        for (var i = 0; i < count; i++) {
+            segment = segments.getItem(i);
+            switch(segment.pathSegType) {
+                case SVGPathSeg.PATHSEG_MOVETO_ABS:
+                case SVGPathSeg.PATHSEG_LINETO_ABS:
+                case SVGPathSeg.PATHSEG_CURVETO_CUBIC_ABS:
+                case SVGPathSeg.PATHSEG_CURVETO_QUADRATIC_ABS:
+                case SVGPathSeg.PATHSEG_ARC_ABS:
+                case SVGPathSeg.PATHSEG_CURVETO_CUBIC_SMOOTH_ABS:
+                case SVGPathSeg.PATHSEG_CURVETO_QUADRATIC_SMOOTH_ABS:
+                    x = segment.x;
+                    y = segment.y;
+                    break;
+                
+                case SVGPathSeg.PATHSEG_MOVETO_REL:                
+                case SVGPathSeg.PATHSEG_LINETO_REL:
+                case SVGPathSeg.PATHSEG_CURVETO_CUBIC_REL:
+                case SVGPathSeg.PATHSEG_CURVETO_QUADRATIC_REL:
+                case SVGPathSeg.PATHSEG_ARC_REL:
+                case SVGPathSeg.PATHSEG_CURVETO_CUBIC_SMOOTH_REL:
+                case SVGPathSeg.PATHSEG_CURVETO_QUADRATIC_SMOOTH_REL:
+                    x = segment.x;
+                    y = segment.y;
+                    if (result.length > 0) {
+                        x += result[result.length - 1].x;
+                        y += result[result.length - 1].y;
+                    }
+                    break;
+                
+                case SVGPathSeg.PATHSEG_LINETO_HORIZONTAL_ABS:
+                    x = segment.x;
+                    y = result[result.length - 1];
+                    break;
+                case SVGPathSeg.PATHSEG_LINETO_HORIZONTAL_REL:
+                    x = result[result.length - 2] + segment.x;
+                    y = result[result.length - 1];
+                    break;
+
+                case SVGPathSeg.PATHSEG_LINETO_VERTICAL_ABS:
+                    x = result[result.length - 2];
+                    y = segment.y;
+                    break;
+                case SVGPathSeg.PATHSEG_LINETO_VERTICAL_REL:
+                    x = result[result.length - 2];
+                    y = segment.y + result[result.length - 1];
+                    break;
+                case SVGPathSeg.PATHSEG_CLOSEPATH:
+                    return result;
+                default:
+                    console.log('unknown path command: ', segment.pathSegTypeAsLetter);
+            }
+            result.push({
+                x: x,
+                y: y
+            });
+        }
+        return result;
+    }
+
+    function getPathArray() {
+        var svg = document.querySelector('#svg');
+        var path = document.querySelector('#svg path');
+        var points = pathToPoints(path.pathSegList);
+        return points;
+    }
+
+    var position = 0;
+    var pathArray = getPathArray();
+    var polypoints = makePolyPoints(pathArray);
+
+    function makePolyPoints(pathArray) {
+        var points = [];
+        for (var i = 1; i < pathArray.length; i++) {
+            var startPt = pathArray[i - 1];
+            var endPt = pathArray[i];
+            var dx = endPt.x - startPt.x;
+            var dy = endPt.y - startPt.y;
+            for (var n = 0; n <= 100; n++) {
+                var x = startPt.x + dx * n / 100;
+                var y = startPt.y + dy * n / 100;
+                points.push({
+                    x: x,
+                    y: y
+                });
+            }
+        }
+        return (points);
+    }
+
+
     // Canvas Variables
     var canvas = $('#canvas1');
     var context = canvas.get(0).getContext('2d');
@@ -139,11 +233,12 @@ $(document).ready(function(){
     // Create any objects needed for animation        
     function initStageObjects(){
         car = new Car('http://www.henry.brown.name/experiments/foundation-canvas/images/car.png',canvas.width()/2,canvas.height()/2);
-        grass = new Grass('grass.png',canvas2.width()/2,canvas2.height()/2);
+        grass = new Grass('grass.png',0,0);
     }
     
     
     function drawStageObjects(){
+
         context2.save();
         context2.translate(grass.x,grass.y);
         context2.drawImage(grass.image, 0, 0);
@@ -238,11 +333,18 @@ $(document).ready(function(){
         
         
         // Plot the new velocity into x and y cords
-        car.y = car.y + car.vy;
-        car.x = car.x + car.vx;
+        if(position < polypoints.length) {
+            var pt = polypoints[position];
+            car.y = pt.y + car.vy;
+            car.x = pt.x + car.vx;
+            position++;
+        } else {
+            car.y = car.y + car.vy;
+            car.x = car.x + car.vx;
+        }
 
-        grass.y = -(2.5 * (car.y + car.vy));
-        grass.x = -(2.5 * (car.x + car.vx));
+        grass.y = -(car.y + car.vy);
+        grass.x = -(car.x + car.vx);
     }
 
 
