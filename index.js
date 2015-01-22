@@ -1,7 +1,19 @@
 $(document).ready(function(){
 
 
-    // Get x, y point from a path segment or more, the resulting road will be an array with a polygonal circuit
+    // Canvas Variables
+    var canvas = $('#canvas1');
+    var context = canvas.get(0).getContext('2d');
+    var canvasWidth = canvas.width();
+    var canvasHeight = canvas.height();
+
+    var canvas2 = $('#canvas2');
+    var context2 = canvas2.get(0).getContext('2d');
+    var canvas2Width = canvas2.width();
+    var canvas2Height = canvas2.height();
+
+
+    // Get (x, y) points from a path segment or more
     function pathToPoints(segments) {
         var count = segments.numberOfItems;
         var result = [], segment, x, y;
@@ -36,20 +48,20 @@ $(document).ready(function(){
                 
                 case SVGPathSeg.PATHSEG_LINETO_HORIZONTAL_ABS:
                     x = segment.x;
-                    y = result[result.length - 1];
+                    y = result[result.length - 1].y;
                     break;
                 case SVGPathSeg.PATHSEG_LINETO_HORIZONTAL_REL:
-                    x = result[result.length - 2] + segment.x;
-                    y = result[result.length - 1];
+                    x = result[result.length - 1].x + segment.x;
+                    y = result[result.length - 1].y;
                     break;
 
                 case SVGPathSeg.PATHSEG_LINETO_VERTICAL_ABS:
-                    x = result[result.length - 2];
+                    x = result[result.length - 1].x;
                     y = segment.y;
                     break;
                 case SVGPathSeg.PATHSEG_LINETO_VERTICAL_REL:
-                    x = result[result.length - 2];
-                    y = segment.y + result[result.length - 1];
+                    x = result[result.length - 1].x;
+                    y = segment.y + result[result.length - 1].y;
                     break;
                 case SVGPathSeg.PATHSEG_CLOSEPATH:
                     return result;
@@ -93,18 +105,6 @@ $(document).ready(function(){
         }
         return (points);
     }
-
-
-    // Canvas Variables
-    var canvas = $('#canvas1');
-    var context = canvas.get(0).getContext('2d');
-    var canvasWidth = canvas.width();
-    var canvasHeight = canvas.height();
-
-    var canvas2 = $('#canvas2');
-    var context2 = canvas2.get(0).getContext('2d');
-    var canvas2Width = canvas2.width();
-    var canvas2Height = canvas2.height();
 
 
     // Keyboard Variables
@@ -337,7 +337,7 @@ $(document).ready(function(){
             var pt = polypoints[position];
             car.y = pt.y + car.vy;
             car.x = pt.x + car.vx;
-            position++;
+            position+= 15;
         } else {
             car.y = car.y + car.vy;
             car.x = car.x + car.vx;
