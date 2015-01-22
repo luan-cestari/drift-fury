@@ -233,7 +233,7 @@ $(document).ready(function(){
     // Create any objects needed for animation        
     function initStageObjects(){
         car = new Car('http://www.henry.brown.name/experiments/foundation-canvas/images/car.png',canvas.width()/2,canvas.height()/2);
-        grass = new Grass('grass.png',0,0);
+        grass = new Grass('images/grass.png',0,0);
     }
     
     
