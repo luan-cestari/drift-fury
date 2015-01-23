@@ -77,8 +77,8 @@ $(document).ready(function(){
     }
 
     function getPathArray() {
-        var svg = document.querySelector('#svg');
-        var path = document.querySelector('#svg path');
+        var svg = document.querySelector('svg');
+        var path = document.querySelector('svg path');
         var points = pathToPoints(path.pathSegList);
         return points;
     }
