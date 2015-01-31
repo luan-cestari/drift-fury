@@ -7,11 +7,6 @@ $(document).ready(function(){
     var canvasWidth = canvas.width();
     var canvasHeight = canvas.height();
 
-    var canvas2 = $('#canvas2');
-    var context2 = canvas2.get(0).getContext('2d');
-    var canvas2Width = canvas2.width();
-    var canvas2Height = canvas2.height();
-
 
     // Get (x, y) points from a path segment or more
     function pathToPoints(segments) {
@@ -167,11 +162,6 @@ $(document).ready(function(){
         canvas.attr('height', $(window).get(0).innerHeight);
         canvasWidth = canvas.width();
         canvasHeight = canvas.height();
-
-        canvas2.attr('width', $(window).get(0).innerWidth);
-        canvas2.attr('height', $(window).get(0).innerHeight);
-        canvas2Width = canvas2.width();
-        canvas2Height = canvas2.height();
     }
     resizeCanvas();
     $(window).resize(resizeCanvas);
@@ -183,17 +173,6 @@ $(document).ready(function(){
         updateStage();
     }
     
-
-    // Grass object and properties
-    function Grass(src, x, y){        
-        this.image = new Image();
-        this.image.src = src;
-        
-        this.x = x;
-        this.y = y;
-        this.vx = 0;
-        this.vy = 0;
-    }
 
     // Car object and properties
     function Car(src, x, y){        
@@ -232,18 +211,11 @@ $(document).ready(function(){
     
     // Create any objects needed for animation        
     function initStageObjects(){
-        car = new Car('http://www.henry.brown.name/experiments/foundation-canvas/images/car.png',canvas.width()/2,canvas.height()/2);
-        grass = new Grass('grass.png',0,0);
+        car = new Car('car.png',canvas.width()/2,canvas.height()/2);
     }
     
     
     function drawStageObjects(){
-
-        context2.save();
-        context2.translate(grass.x,grass.y);
-        context2.drawImage(grass.image, 0, 0);
-        context2.restore();
-
         context.save();
         context.translate(car.x,car.y);
         context.rotate((car.angle + car.drift) * Math.PI/180);    
@@ -256,9 +228,6 @@ $(document).ready(function(){
     function clearCanvas(){
         context.clearRect(0, 0, canvasWidth, canvasHeight);  
         context.beginPath();
-
-        context2.clearRect(0, 0, canvasWidth, canvasHeight);  
-        context2.beginPath();
     }
     
     
@@ -334,17 +303,18 @@ $(document).ready(function(){
         
         // Plot the new velocity into x and y cords
         if(position < polypoints.length) {
+
+            // More work here is needed
             var pt = polypoints[position];
             car.y = pt.y + car.vy;
             car.x = pt.x + car.vx;
             position+= 15;
+
         } else {
             car.y = car.y + car.vy;
             car.x = car.x + car.vx;
         }
 
-        grass.y = -(car.y + car.vy);
-        grass.x = -(car.x + car.vx);
     }
 
 
