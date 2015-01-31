@@ -211,7 +211,7 @@ $(document).ready(function(){
     
     // Create any objects needed for animation        
     function initStageObjects(){
-        car = new Car('car.png',canvas.width()/2,canvas.height()/2);
+        car = new Car('images/car.png',canvas.width()/2,canvas.height()/2);
     }
     
     
